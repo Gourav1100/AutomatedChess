@@ -1,5 +1,4 @@
 #include <WiFi.h>
-#define wifi Wifi
 #define BAUD 9600
 
 // define ssid, password and set mode for esp32
@@ -9,16 +8,18 @@
 #define MAX_CONNECTIONS 1
 
 // define protocol for data exchange between server and client
-class Protocol
+class Protocol {
+
+};
 // create server at port = PORT
-WifiServer server(PORT);
+WiFiServer server(PORT);
 
 void setup() {
   Serial.begin(BAUD);
   // set server as access point
-  wifi.mode(WIFI_AP);
+  WiFi.mode(WIFI_AP);
   // create Access point with SSID and password
-  wifi.softASP(SSID, PASSWORD, 1, 0, MAX_CONNECTIONS);
+  WiFi.softAP(SSID, PASSWORD, 1, 0, MAX_CONNECTIONS);
   // start server
   server.begin();
   Serial.println("Server running at port " + String(PORT));
@@ -29,12 +30,12 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  WifiClient client = server.available();
+  WiFiClient client = server.available();
   if(client && client.available()) {
     // code to handle requests
     
   }
-  client ? client.stop() : NULL;
+  client ? (void)client.stop() : (void)NULL;
 }
 
 /* define instructions and return response as per the instruction
