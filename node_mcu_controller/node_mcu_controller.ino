@@ -9,7 +9,18 @@
 
 // define protocol for data exchange between server and client
 class Protocol {
-
+  public:
+    String instruction;
+    int x1, y1;
+    int x2, y2;
+    Protocol() {
+      instruction = "";
+      x1 = y1 = x2 = y2 = -1;
+    }
+    String generateInstruction() {
+      String Instruction = (instruction == "" ? "NUL" : instruction) + ";" + String(x1) + ";" + String(y1) + ";" + String(x2) + ";" + String(y2) + ";";
+      return Instruction;      
+    }
 };
 // create server at port = PORT
 WiFiServer server(PORT);
@@ -32,7 +43,7 @@ void loop() {
   // put your main code here, to run repeatedly:
   WiFiClient client = server.available();
   if(client && client.available()) {
-    // code to handle requests
+    
     
   }
   client ? (void)client.stop() : (void)NULL;
