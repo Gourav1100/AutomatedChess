@@ -18,7 +18,8 @@ samples, guidance on mobile development, and a full API reference.
 Tasks in Hand 
 
 <ul>
-    <li>Design of chess Board and putting chess pieces on the board </li>
+    <li>Design of chess Board and putting chess pieces on the board</li>
     <li>movement of pieces and validation of chess moves</li>
+    <li>putting constraint on movement due to checks</li>
     <li>piece promotion etc. </li>
 </ul>

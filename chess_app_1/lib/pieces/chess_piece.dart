@@ -30,8 +30,8 @@ abstract class ChessPiece {
       "assets/${pieceColor.toString().split('.').last}_${name}.png";
 
   ChessPiece(this.pieceColor, this.location);
-  List<Location> legalMoves(List<ChessPiece> otherPieces);
-  List<Location> legalCaptures(List<ChessPiece> otherPieces);
+  List<Location?> legalMoves(List<ChessPiece> otherPieces);
+  List<Location?> legalCaptures(List<ChessPiece> otherPieces);
 
   bool canMoveTo(int x, int y, List<ChessPiece> others) =>
       legalMoves(others).contains(Location(x, y));

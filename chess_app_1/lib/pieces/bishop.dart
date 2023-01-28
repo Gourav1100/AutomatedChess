@@ -8,7 +8,7 @@ class Bishop extends ChessPiece {
   String get name => "bishop";
 
   @override
-  List<Location> legalMoves(List<ChessPiece> others) {
+  List<Location?> legalMoves(List<ChessPiece> others) {
     final locations = [
       ..._generateMovesOnDiagonal(true, true, others),
       ..._generateMovesOnDiagonal(false, true, others),
@@ -20,7 +20,7 @@ class Bishop extends ChessPiece {
   }
 
   @override
-  List<Location> legalCaptures(List<ChessPiece> others) {
+  List<Location?> legalCaptures(List<ChessPiece> others) {
     final locations = [
       ..._generateCapturesOnDiagonal(true, true, others),
       ..._generateCapturesOnDiagonal(false, true, others),
@@ -31,7 +31,7 @@ class Bishop extends ChessPiece {
     return locations;
   }
 
-  List<Location> _generateMovesOnDiagonal(
+  List<Location?> _generateMovesOnDiagonal(
       bool isUp, bool isRight, List<ChessPiece> others) {
     bool obstructed = false;
     return List<Location?>.generate(8, (index) {
@@ -47,7 +47,7 @@ class Bishop extends ChessPiece {
     }).whereType<Location>().where((location) => location.isValid).toList();
   }
 
-  List<Location> _generateCapturesOnDiagonal(
+  List<Location?> _generateCapturesOnDiagonal(
       bool isUp, bool isRight, List<ChessPiece> allPieces) {
     bool hasFoundCapture = false;
     return List<Location?>.generate(8, (index) {
@@ -56,7 +56,7 @@ class Bishop extends ChessPiece {
       int dx = (isRight ? 1 : -1) * index;
 
       final newPos = Location(x + dx, y + dy);
-      final pieceOnLocation = allPieces.any((piece) => piece.location == newPos);
+      final pieceOnLocation = allPieces.any((piece) => piece.location == newPos && piece.pieceColor != pieceColor);
 
       if (pieceOnLocation && location != newPos) {
         hasFoundCapture = true;

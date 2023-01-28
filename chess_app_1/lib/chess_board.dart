@@ -52,21 +52,29 @@ class _ChessBoardState extends State<ChessBoard> {
     return DragTarget<ChessPiece>(
       onAccept: (piece) {
         final capturedPiece = coordinator.pieceOfTile(x, y);
-
-
         setState(() {
           piece.location = Location(x, y);
-          if(capturedPiece != null){
-            print("$capturedPiece captured!!");
-            // removing captured piece 
-            pieces.remove(capturedPiece); 
+          if (capturedPiece != null) {
+            // print("$capturedPiece captured!!");
+            // removing captured piece
+            pieces.remove(capturedPiece);
+          }
+          if (coordinator.currentTurn == PlayerColor.white) {
+            coordinator.currentTurn = PlayerColor.black; 
+          }
+          else {
+            coordinator.currentTurn = PlayerColor.white; 
           }
         });
       },
       onWillAccept: (piece) {
         if (piece == null) return false;
+        if(coordinator.currentTurn != piece.pieceColor) return false; 
         bool canMoveTo = piece.canMoveTo(x, y, pieces);
         bool canCapture = piece.canCapture(x, y, pieces);
+
+        bool ans = canMoveTo || canCapture;
+        // print("${ans ? "can move " : "cannot move"} ${piece.pieceColor.toString()} ${piece.name} to ($x, $y)");
         return canMoveTo || canCapture;
       },
       builder: (context, data, rejects) => InkWell(
