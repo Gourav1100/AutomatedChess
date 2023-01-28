@@ -19,16 +19,26 @@ class Location {
 
 abstract class ChessPiece {
   late final PlayerColor pieceColor;
-  late final Location location;
+  Location location;
 
   String get name;
 
   int get x => location.x;
-  int get y => location.y; 
+  int get y => location.y;
 
-  String get fileName => "${pieceColor.toString().split('.').last}_${name}";
-
+  String get fileName =>
+      "assets/${pieceColor.toString().split('.').last}_${name}.png";
 
   ChessPiece(this.pieceColor, this.location);
   List<Location> legalMoves(List<ChessPiece> otherPieces);
+  List<Location> legalCaptures(List<ChessPiece> otherPieces);
+
+  bool canMoveTo(int x, int y, List<ChessPiece> others) =>
+      legalMoves(others).contains(Location(x, y));
+
+  bool canCapture(int x, int y, List<ChessPiece> others) =>
+      legalCaptures(others).contains(Location(x, y));
+
+  @override
+  String toString() => "$name($x, $y)";
 }
