@@ -1,6 +1,8 @@
 import 'package:chess_app_1/game_coordinator.dart';
 import 'package:chess_app_1/pieces/chess_piece.dart';
 import "package:flutter/material.dart";
+import 'package:collection/collection.dart';
+import 'package:chess_app_1/pieces/chess_piece.dart';
 
 class ChessBoard extends StatefulWidget {
   const ChessBoard({super.key});
@@ -19,6 +21,11 @@ class _ChessBoardState extends State<ChessBoard> {
   final GameCoordinator coordinator = GameCoordinator.newGame();
 
   List<ChessPiece> get pieces => coordinator.pieces;
+
+  late final ChessPiece whiteKing = coordinator.pieces.firstWhere(
+      (piece) => piece.name == "king" && piece.pieceColor == PlayerColor.white);
+  late final ChessPiece blackKing = coordinator.pieces.firstWhere(
+      (piece) => piece.name == "king" && piece.pieceColor == PlayerColor.black);
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,20 +67,58 @@ class _ChessBoardState extends State<ChessBoard> {
             pieces.remove(capturedPiece);
           }
           if (coordinator.currentTurn == PlayerColor.white) {
-            coordinator.currentTurn = PlayerColor.black; 
-          }
-          else {
-            coordinator.currentTurn = PlayerColor.white; 
+            coordinator.currentTurn = PlayerColor.black;
+          } else {
+            coordinator.currentTurn = PlayerColor.white;
           }
         });
       },
       onWillAccept: (piece) {
         if (piece == null) return false;
-        if(coordinator.currentTurn != piece.pieceColor) return false; 
+        if (coordinator.currentTurn != piece.pieceColor) return false;
+
+        List<Location>? whiteKingCheckLocations = isKingUnderCheck(whiteKing);
+        List<Location>? blackKingCheckLocations = isKingUnderCheck(blackKing);
+        
+        if (coordinator.currentTurn == PlayerColor.white &&
+            whiteKingCheckLocations!.isNotEmpty) {
+          //resolve double check
+          if (whiteKingCheckLocations.length > 1 && piece != whiteKing) {
+            return false;
+          }
+          Location checkLocation = whiteKingCheckLocations[0];
+          if (piece != whiteKing &&
+              !piece.canMoveTo(
+                  checkLocation.x, checkLocation.y, coordinator.pieces) &&
+              !piece.canCapture(
+                  checkLocation.x, checkLocation.y, coordinator.pieces)) {
+            print("this is an invalid  move");
+            return false;
+          }
+          // add how the king moves in check and doubleCheck
+        }
+
+        if (coordinator.currentTurn == PlayerColor.white &&
+            blackKingCheckLocations!.isNotEmpty) {
+          //resolve double check
+          if (blackKingCheckLocations.length > 1 && piece != blackKing) {
+            return false;
+          }
+          Location checkLocation = blackKingCheckLocations[0];
+          if (piece != blackKing &&
+              !piece.canMoveTo(
+                  checkLocation.x, checkLocation.y, coordinator.pieces) &&
+              !piece.canCapture(
+                  checkLocation.x, checkLocation.y, coordinator.pieces)) {
+            print("this is an invalid  move");
+            return false;
+          }
+        }
+        
         bool canMoveTo = piece.canMoveTo(x, y, pieces);
         bool canCapture = piece.canCapture(x, y, pieces);
 
-        bool ans = canMoveTo || canCapture;
+        // bool ans = canMoveTo || canCapture;
         // print("${ans ? "can move " : "cannot move"} ${piece.pieceColor.toString()} ${piece.name} to ($x, $y)");
         return canMoveTo || canCapture;
       },
@@ -105,5 +150,29 @@ class _ChessBoardState extends State<ChessBoard> {
         child: child,
       );
     }
+    return null;
+  }
+
+  List<Location>? isKingUnderCheck(
+    ChessPiece king,
+  ) {
+    // to check if king under check or not
+    // check all pieces of opposite color
+    List<ChessPiece>? piecesCheckingKing = [];
+    for (int i = 0; i < coordinator.pieces.length; i++) {
+      ChessPiece piece = coordinator.pieces[i];
+      if (piece.pieceColor != king.pieceColor &&
+          (piece.canCapture(
+                  king.location.x, king.location.y, coordinator.pieces) ||
+              piece.canMoveTo(
+                  king.location.x, king.location.y, coordinator.pieces))) {
+        piecesCheckingKing.add(piece);
+      }
+    }
+    List<Location>? locationsOfCheckingPieces = [];
+    for (int i = 0; i < piecesCheckingKing.length; i++) {
+      locationsOfCheckingPieces.add(piecesCheckingKing[i].location);
+    }
+    return locationsOfCheckingPieces;
   }
 }
