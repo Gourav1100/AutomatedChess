@@ -1,11 +1,8 @@
 #include <WiFi.h>
-#define BAUD 9600
-
-// define ssid, password and set mode for esp32
-#define SSID "AC-Board-01"  
-#define PASSWORD "*hk6rzewj^" 
-#define PORT 8080
-#define MAX_CONNECTIONS 1
+#define BAUD 115200
+const char* SSID = "auto_chess";
+const char* PASS = "12345678";
+bool isNetworkConnected = false;
 
 // define protocol for data exchange between server and client
 class Protocol {
@@ -22,31 +19,46 @@ class Protocol {
       return Instruction;      
     }
 };
-// create server at port = PORT
-WiFiServer server(PORT);
 
 void setup() {
   Serial.begin(BAUD);
-  // set server as access point
-  WiFi.mode(WIFI_AP);
-  // create Access point with SSID and password
-  WiFi.softAP(SSID, PASSWORD, 1, 0, MAX_CONNECTIONS);
-  // start server
-  server.begin();
-  Serial.println("Server running at port " + String(PORT));
-  Serial.println("SSID:\t" + String(SSID));
-  Serial.println("Password:\t" + String(PASSWORD));
+  // set server in station mode
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
+  delay(100);
 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  WiFiClient client = server.available();
-  if(client && client.available()) {
-    
-    
+  if(!isNetworkConnected) {
+    Serial.println("scan start");
+    // WiFi.scanNetworks will return the number of networks found
+    int n = WiFi.scanNetworks();
+    Serial.println("scan done");
+    if (n == 0) {
+        Serial.println("no networks found");
+    } else {
+      for (int i = 0; i < n && !isNetworkConnected; ++i) {
+        // Print SSID and RSSI for each network found
+        if(WiFi.SSID(i) == SSID) {
+          Serial.print("Network Found! Trying to connect...");
+          WiFi.begin(SSID, PASS);
+          if(WiFi.status() != WL_CONNECTED) {
+            Serial.println("Connected.");
+            isNetworkConnected = true;
+          } else {
+            Serial.println("");
+          }
+        }
+        delay(10);
+      }
+    }
+
+    // Wait a bit before scanning again
+    delay(5000);
+  } else {
+    Serial.println("Waiting for further instructions");
   }
-  client ? (void)client.stop() : (void)NULL;
 }
 
 /* define instructions and return response as per the instruction
