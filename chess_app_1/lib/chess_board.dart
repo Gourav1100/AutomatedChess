@@ -79,42 +79,77 @@ class _ChessBoardState extends State<ChessBoard> {
 
         List<Location>? whiteKingCheckLocations = isKingUnderCheck(whiteKing);
         List<Location>? blackKingCheckLocations = isKingUnderCheck(blackKing);
-        
+
         if (coordinator.currentTurn == PlayerColor.white &&
             whiteKingCheckLocations!.isNotEmpty) {
           //resolve double check
-          if (whiteKingCheckLocations.length > 1 && piece != whiteKing) {
-            return false;
+          if (piece != whiteKing) {
+            if (whiteKingCheckLocations.length > 1) {
+              return false;
+            }
+            Location checkLocation = whiteKingCheckLocations[0];
+            bool check = piece.canCapture(
+                checkLocation.x, checkLocation.y, coordinator.pieces);
+            if (!check) {
+              // piece cannot capture at that location
+              // print("piece cannot capture at that location");
+              return false;
+            }
+            return checkLocation == Location(x, y);
+          } else {
+            //king moves
+            // -> move => pieces of other color are not attacking the square
+            // -> capture => pieces of other color not on that square not protecting
+            return (whiteKing.canMoveTo(x, y, coordinator.pieces) ||
+                    whiteKing.canMoveTo(x, y, coordinator.pieces)) &&
+                canKingCaptureOrMove(x, y, whiteKing);
           }
-          Location checkLocation = whiteKingCheckLocations[0];
-          if (piece != whiteKing &&
-              !piece.canMoveTo(
-                  checkLocation.x, checkLocation.y, coordinator.pieces) &&
-              !piece.canCapture(
-                  checkLocation.x, checkLocation.y, coordinator.pieces)) {
-            print("this is an invalid  move");
-            return false;
+          // add how the king moves in check and doubleCheck
+        } else if (coordinator.currentTurn == PlayerColor.black &&
+            blackKingCheckLocations!.isNotEmpty) {
+          //resolve double check
+          if (piece != blackKing) {
+            if (blackKingCheckLocations.length > 1) {
+              return false;
+            }
+            Location checkLocation = blackKingCheckLocations[0];
+            bool check = piece.canCapture(
+                checkLocation.x, checkLocation.y, coordinator.pieces);
+            if (!check) {
+              // piece cannot capture at that location
+              // print("piece cannot capture at that location");
+              return false;
+            }
+            return checkLocation == Location(x, y);
+          } else {
+            //king moves
+            // -> move => pieces of other color are not attacking the square
+            // -> capture => pieces of other color not on that square not protecting
+            return (blackKing.canMoveTo(x, y, coordinator.pieces) ||
+                    blackKing.canMoveTo(x, y, coordinator.pieces)) &&
+                canKingCaptureOrMove(x, y, blackKing);
           }
           // add how the king moves in check and doubleCheck
         }
 
-        if (coordinator.currentTurn == PlayerColor.white &&
-            blackKingCheckLocations!.isNotEmpty) {
-          //resolve double check
-          if (blackKingCheckLocations.length > 1 && piece != blackKing) {
-            return false;
-          }
-          Location checkLocation = blackKingCheckLocations[0];
-          if (piece != blackKing &&
-              !piece.canMoveTo(
-                  checkLocation.x, checkLocation.y, coordinator.pieces) &&
-              !piece.canCapture(
-                  checkLocation.x, checkLocation.y, coordinator.pieces)) {
-            print("this is an invalid  move");
-            return false;
-          }
+        if(piece==whiteKing) {
+          //king moves
+          // -> move => pieces of other color are not attacking the square
+          // -> capture => pieces of other color not on that square not protecting
+          return (whiteKing.canMoveTo(x, y, coordinator.pieces) ||
+                  whiteKing.canMoveTo(x, y, coordinator.pieces)) &&
+              canKingCaptureOrMove(x, y, whiteKing);
         }
-        
+
+        if (piece == blackKing) {
+          //king moves
+          // -> move => pieces of other color are not attacking the square
+          // -> capture => pieces of other color not on that square not protecting
+          return (blackKing.canMoveTo(x, y, coordinator.pieces) ||
+                  blackKing.canMoveTo(x, y, coordinator.pieces)) &&
+              canKingCaptureOrMove(x, y, blackKing);
+        }
+
         bool canMoveTo = piece.canMoveTo(x, y, pieces);
         bool canCapture = piece.canCapture(x, y, pieces);
 
@@ -132,7 +167,7 @@ class _ChessBoardState extends State<ChessBoard> {
           child: _buildChessPiece(x, y),
         ),
         onTap: () {
-          print('coordinates are $x and $y');
+          // print('coordinates are $x and $y');
         },
       ),
     );
@@ -174,5 +209,21 @@ class _ChessBoardState extends State<ChessBoard> {
       locationsOfCheckingPieces.add(piecesCheckingKing[i].location);
     }
     return locationsOfCheckingPieces;
+  }
+
+  bool canKingCaptureOrMove(
+    int x,
+    int y,
+    ChessPiece king,
+  ) {
+    List<ChessPiece> pieces = coordinator.pieces;
+    for (int i = 0; i < pieces.length; i++) {
+      if (pieces[i].pieceColor != king.pieceColor &&
+          (pieces[i].canCapture(x, y, pieces) ||
+              pieces[i].canMoveTo(x, y, pieces))) {
+        return false;
+      }
+    }
+    return true;
   }
 }
