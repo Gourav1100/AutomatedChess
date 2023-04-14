@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "408584865733",
+    "project_id": "automated-chess",
+    "storage_bucket": "automated-chess.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:408584865733:android:c3e3165fa599bfdbc26dac",
+        "android_client_info": {
+          "package_name": "com.example.automated_chess_client"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "408584865733-mp91b7e7v5lr6ntmv5re3oe6c9f96lpt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAw2wS19-xymtH17ppNRHm-eCUaTLurQo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "408584865733-mp91b7e7v5lr6ntmv5re3oe6c9f96lpt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
