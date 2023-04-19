@@ -9,11 +9,9 @@ WebSocketsServer webSocket = WebSocketsServer(80);
 void onWebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
   switch(type) {
 
-
     case WStype_DISCONNECTED:
       Serial.printf("[%u] Disconnected!\n", num);
       break;
-
 
     case WStype_CONNECTED:
       {
@@ -25,7 +23,7 @@ void onWebSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t leng
 
     case WStype_TEXT:
       Serial.printf("[%u] Text: %s\n", num, payload);
-      webSocket.sendTXT(num, payload);
+      webSocket.sendTXT(num, "Sample message sent from server");
       break;
 
     case WStype_BIN:
