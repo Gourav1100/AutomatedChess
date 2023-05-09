@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'pages/home_page.dart';
 import 'chess_board.dart';
+import 'socketConnection/socketConnect.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,9 +13,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      routes: {'/': (context) => ChessBoard()},
+      // routes: {'/': (context) => MyHomePage(title: 'Socket Connection')},
+      routes: {'/': (context) => ChessBoard()}
     );
   }
 }
 
-// comment1
+

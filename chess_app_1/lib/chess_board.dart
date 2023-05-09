@@ -1,10 +1,11 @@
 import 'dart:math';
-
 import 'package:chess_app_1/game_coordinator.dart';
 import 'package:chess_app_1/pieces/chess_piece.dart';
 import "package:flutter/material.dart";
 import 'package:collection/collection.dart';
 import 'package:chess_app_1/pieces/chess_piece.dart';
+
+
 
 class ChessBoard extends StatefulWidget {
   const ChessBoard({super.key});
@@ -100,11 +101,16 @@ class _ChessBoardState extends State<ChessBoard> {
               print('checking path');
               for (int i = 0; i < checkPath.length && !checkBlock; i++) {
                 print('${checkPath[i].x}, ${checkPath[i].y}');
-                checkBlock = checkBlock ||
-                    piece.canMoveTo(
-                        checkPath[i].x, checkPath[i].y, coordinator.pieces);
+                // checkBlock = checkBlock ||
+                //     piece.canMoveTo(
+                //         checkPath[i].x, checkPath[i].y, coordinator.pieces);
+                if (piece.canMoveTo(
+                    checkPath[i].x, checkPath[i].y, coordinator.pieces)) {
+                  bool ans = checkPath[i] == Location(x, y);
+                  if (ans) return true;
+                }
               }
-              if (checkBlock) return true;
+              // if (checkBlock) return true;
             }
             bool check = piece.canCapture(
                 checkLocation.x, checkLocation.y, coordinator.pieces);
@@ -114,7 +120,7 @@ class _ChessBoardState extends State<ChessBoard> {
               return false;
             }
             // case where check path can be blocked
-            return checkLocation == Location(x, y);
+            return false;
           } else {
             //king moves
             // -> move => pieces of other color are not attacking the square
@@ -140,11 +146,13 @@ class _ChessBoardState extends State<ChessBoard> {
               print('checking path');
               for (int i = 0; i < checkPath.length && !checkBlock; i++) {
                 print('${checkPath[i].x}, ${checkPath[i].y}');
-                checkBlock = checkBlock ||
-                    piece.canMoveTo(
-                        checkPath[i].x, checkPath[i].y, coordinator.pieces);
+                if (piece.canMoveTo(
+                    checkPath[i].x, checkPath[i].y, coordinator.pieces)) {
+                  bool ans = checkPath[i] == Location(x, y); 
+                  if(ans) return true; 
+                }
               }
-              if (checkBlock) return true;
+              // if (checkBlock) return true;
             }
             bool check = piece.canCapture(
                 checkLocation.x, checkLocation.y, coordinator.pieces);
@@ -154,7 +162,7 @@ class _ChessBoardState extends State<ChessBoard> {
               return false;
             }
             // case where check path can be blocked
-            return checkLocation == Location(x, y);
+            return false;
           } else {
             //king moves
             // -> move => pieces of other color are not attacking the square
@@ -171,7 +179,7 @@ class _ChessBoardState extends State<ChessBoard> {
           // -> move => pieces of other color are not attacking the square
           // -> capture => pieces of other color not on that square not protecting
           return (whiteKing.canMoveTo(x, y, coordinator.pieces) ||
-                  whiteKing.canMoveTo(x, y, coordinator.pieces)) &&
+                  whiteKing.canCapture(x, y, coordinator.pieces)) &&
               canKingCaptureOrMove(x, y, whiteKing);
         }
 
@@ -180,7 +188,7 @@ class _ChessBoardState extends State<ChessBoard> {
           // -> move => pieces of other color are not attacking the square
           // -> capture => pieces of other color not on that square not protecting
           return (blackKing.canMoveTo(x, y, coordinator.pieces) ||
-                  blackKing.canMoveTo(x, y, coordinator.pieces)) &&
+                  blackKing.canCapture(x, y, coordinator.pieces)) &&
               canKingCaptureOrMove(x, y, blackKing);
         }
 
@@ -289,9 +297,10 @@ class _ChessBoardState extends State<ChessBoard> {
       if (st_col < king.location.y) {
         st_col++;
       } else {
-        st_col--; 
+        st_col--;
       }
-      if(st_row != king.location.x)blockableSquares.add(Location(st_row, st_col));
+      if (st_row != king.location.x)
+        blockableSquares.add(Location(st_row, st_col));
     }
     return blockableSquares;
     // return ans;
@@ -306,7 +315,9 @@ class _ChessBoardState extends State<ChessBoard> {
     for (int i = 0; i < pieces.length; i++) {
       if (pieces[i].pieceColor != king.pieceColor &&
           (pieces[i].canCapture(x, y, pieces) ||
-              pieces[i].canMoveTo(x, y, pieces))) {
+              pieces[i].canMoveTo(x, y, pieces)) &&
+          coordinator.pieceOfTile(x, y) != pieces[i]) {
+        print(pieces[i]);
         return false;
       }
     }
