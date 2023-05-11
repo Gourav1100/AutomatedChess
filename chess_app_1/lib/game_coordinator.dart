@@ -34,7 +34,7 @@ class GameCoordinator {
       Queen(PlayerColor.black, Location(3, 7)),
       King(PlayerColor.white, Location(4, 0)),
       King(PlayerColor.black, Location(4, 7)),
-      Pawn(PlayerColor.white, Location(0,1)),
+      Pawn(PlayerColor.white, Location(0, 1)),
       Pawn(PlayerColor.white, Location(0, 1)),
       Pawn(PlayerColor.white, Location(1, 1)),
       Pawn(PlayerColor.white, Location(2, 1)),
@@ -54,4 +54,7 @@ class GameCoordinator {
     ]);
   }
 
+  // factory GameCoordinator.newGame() {
+  //   return GameCoordinator([Bishop(PlayerColor.white, Location(0, 0))]);
+  // }
 }
