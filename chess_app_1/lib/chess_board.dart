@@ -2,7 +2,8 @@ import 'dart:math';
 import 'package:chess_app_1/game_coordinator.dart';
 import 'package:chess_app_1/pieces/chess_piece.dart';
 import "package:flutter/material.dart";
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:collection/collection.dart';
+import 'package:chess_app_1/pieces/chess_piece.dart';
 
 const String IP_ADDR = 'ws://192.168.4.1:81';
 
@@ -36,144 +37,7 @@ class _ChessBoardState extends State<ChessBoard> {
     return Scaffold(
         appBar: AppBar(title: const Text("Chess Board")),
         backgroundColor: blackBackground,
-        body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          buildBoard(),
-          StreamBuilder(
-            stream: _channel.stream,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                final String data = snapshot.data;
-                List<String> substrings = [];
-                int index = 0;
-                for (int i = 0; i < (data).length; i++) {
-                  if (data[i] == ' ') {
-                    substrings.add(data.substring(index, i));
-                    index = i + 1;
-                  }
-                }
-                // mov x1, y1, x2, y2
-                // x1, y1 -> piece X -> return con
-                // found piece but illegal move -> return invalid move (con)
-                // legal move
-                // Animation Widget -> would move piece
-                if (substrings[0] == "MOV") {
-                  int x1 = int.parse(substrings[1]);
-                  int y1 = int.parse(substrings[2]);
-                  int x2 = int.parse(substrings[3]);
-                  int y2 = int.parse(substrings[4]);
-
-                  ChessPiece? piece = coordinator.pieceOfTile(x1, y1);
-                  if (piece == null) {
-                    _channel.sink.add('0');
-                    setState(() {
-                      coordinator.gamePaused = true;
-                    });
-                    return const CircularProgressIndicator(
-                        semanticsLabel: 'Circular progress indicator',
-                        backgroundColor: Color.fromRGBO(252, 186, 3, 100));
-                  } else if (piece
-                      .legalMoves(coordinator.pieces)
-                      .contains(Location(x2, y2))) {
-                    // move the piece
-                    final capturedPiece = coordinator.pieceOfTile(x2, y2);
-                    setState(() {
-                      piece.location = Location(x2, y2);
-                      if (capturedPiece != null) {
-                        // print("$capturedPiece captured!!");
-                        // removing captured piece
-                        pieces.remove(capturedPiece);
-                      }
-                      whiteKingCheckLocations = isKingUnderCheck(whiteKing);
-                      blackKingCheckLocations = isKingUnderCheck(blackKing);
-                      if (coordinator.currentTurn == PlayerColor.white) {
-                        setState(() {
-                          coordinator.currentTurn = PlayerColor.black;
-                        });
-                        if (blackKingCheckLocations!.isNotEmpty)
-                          print('Black King in Check');
-                      } else {
-                        coordinator.currentTurn = PlayerColor.white;
-                        if (whiteKingCheckLocations!.isNotEmpty)
-                          print('White King in Check');
-                      }
-                    });
-                  } else {
-                    // invalid move
-                    _channel.sink.add('0');
-                    setState(() {
-                      coordinator.gamePaused = true;
-                    });
-                    return const CircularProgressIndicator(
-                        semanticsLabel: 'Circular progress indicator',
-                        backgroundColor: Color.fromRGBO(252, 186, 3, 100));
-                  }
-                }
-                // rmv x1, y1, x2, y2
-                // x2, y2 -> piece X -> return con
-                // found piece but illegal capture -> return con
-                // legal capture
-                // remove piece at x2, y2 and place piece from (x1, y1) to (x2, y2)
-                else if (substrings[0] == 'RMV') {
-                  int x1 = int.parse(substrings[1]);
-                  int y1 = int.parse(substrings[2]);
-                  int x2 = int.parse(substrings[3]);
-                  int y2 = int.parse(substrings[4]);
-
-                  ChessPiece? piece = coordinator.pieceOfTile(x1, y1);
-                  if (piece == null) {
-                    _channel.sink.add('0');
-                    setState(() {
-                      coordinator.gamePaused = true;
-                    });
-                    return const CircularProgressIndicator(
-                      semanticsLabel: 'Circular progress indicator',
-                      backgroundColor: Color.fromRGBO(252, 186, 3, 100),
-                    );
-                  } else if (piece
-                      .legalCaptures(coordinator.pieces)
-                      .contains(Location(x2, y2))) {
-                    // move the piece
-                    final capturedPiece = coordinator.pieceOfTile(x2, y2);
-                    setState(() {
-                      piece.location = Location(x2, y2);
-                      if (capturedPiece != null) {
-                        // print("$capturedPiece captured!!");
-                        // removing captured piece
-                        pieces.remove(capturedPiece);
-                      }
-                      whiteKingCheckLocations = isKingUnderCheck(whiteKing);
-                      blackKingCheckLocations = isKingUnderCheck(blackKing);
-                      if (coordinator.currentTurn == PlayerColor.white) {
-                        coordinator.currentTurn = PlayerColor.black;
-                        if (blackKingCheckLocations!.isNotEmpty)
-                          print('Black King in Check');
-                      } else {
-                        coordinator.currentTurn = PlayerColor.white;
-                        if (whiteKingCheckLocations!.isNotEmpty)
-                          print('White King in Check');
-                      }
-                    });
-                  } else {
-                    // invalid move
-                    _channel.sink.add('0');
-                    setState(() {
-                      coordinator.gamePaused = true;
-                    });
-                    return const CircularProgressIndicator(
-                      semanticsLabel: 'Circular progress indicator',
-                      backgroundColor: Color.fromRGBO(252, 186, 3, 100),
-                    );
-                  }
-                } else {
-                  setState(() {
-                    coordinator.gamePaused = false;
-                  });
-                }
-              }
-              return const Text("NO DATA FROM BOARD");
-            },
-          )
-        ]));
+        body: buildBoard());
   }
 
   Color getColor(int x, int y) {
@@ -195,6 +59,10 @@ class _ChessBoardState extends State<ChessBoard> {
                 )).reversed
       ],
     );
+  }
+
+  Text userName() {
+    return const Text('UserName');
   }
 
   DragTarget<ChessPiece> buildDragTarget(int x, int y) {
