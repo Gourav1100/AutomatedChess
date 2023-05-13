@@ -34,7 +34,57 @@ class _ChessBoardState extends State<ChessBoard> {
     return Scaffold(
         appBar: AppBar(title: const Text("Chess Board")),
         backgroundColor: blackBackground,
-        body: buildBoard());
+        body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          buildBoard(),
+          StreamBuilder(
+            stream: _channel.stream,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final String data = snapshot.data;
+                List<String> substrings = [];
+                int index = 0;
+                for (int i = 0; i < (data).length; i++) {
+                  if (data[i] == ' ') {
+                    substrings.add(data.substring(index, i));
+                    index = i + 1;
+                  }
+                }
+                // mov x1, y1, x2, y2
+                // x1, y1 -> piece X -> return con 
+                // found piece but illegal move -> return invalid move (con)
+                // legal move 
+                // Animation Widget -> would move piece 
+                if (substrings[0] == "mov") {
+                  int x1 = int.parse(substrings[1]);
+                  int y1 = int.parse(substrings[2]);
+                  int x2 = int.parse(substrings[3]);
+                  int y2 = int.parse(substrings[4]);
+
+                  ChessPiece? piece = coordinator.pieceOfTile(x1, y1); 
+                  if(piece==null){
+                    _channel.sink.add('con');
+                    return Text('invalid Move made revert to original config'); 
+                  }
+                  else if(piece.legalMoves(coordinator.pieces).contains(Location(x2, y2))){
+                    // move the piece 
+                  }
+                  else{
+                    // invalid move 
+                    _channel.sink.add('con'); 
+                    return const Text("invalid move made revert to original config"); 
+                  }
+                }
+                // rmv x1, y1, x2, y2
+                // x2, y2 -> piece X -> return con
+                // found piece but illegal capture -> return con
+                // legal capture 
+                // remove piece at x2, y2 and place piece from (x1, y1) to (x2, y2) 
+                else {}
+              }
+              return const Text("NO DATA FROM BOARD"); 
+            },
+          )
+        ]));
   }
 
   Color getColor(int x, int y) {
