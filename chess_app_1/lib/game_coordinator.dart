@@ -11,6 +11,7 @@ class GameCoordinator {
   final List<ChessPiece> pieces;
 
   late PlayerColor currentTurn = PlayerColor.white;
+  bool gamePaused = false;
   GameCoordinator(this.pieces);
 
   ChessPiece? pieceOfTile(int x, int y) =>
